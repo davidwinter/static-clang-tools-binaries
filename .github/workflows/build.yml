@@ -88,10 +88,6 @@ jobs:
           sed -i'.backup' -e 's/gcc_eh.\*|/gcc_eh.*|gcc_ext.*|/g' "$file"
         done
 
-    - name: Install gcc-10
-      if: ${{ matrix.os == 'macos-x86_64' || matrix.os == 'macos-aarch64' }}
-      run: brew install gcc@10
-
     - name: cmake
       run: cmake -S ${{ matrix.release }}/llvm -B ${{ matrix.release }}/build ${{ env.COMMON_CMAKE_ARGS }} ${{ matrix.os-cmake-args }} ${{ matrix.extra-cmake-args }}
 
