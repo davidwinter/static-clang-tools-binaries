@@ -80,10 +80,19 @@ jobs:
       run: |
         tar xf ${{ matrix.release }}.tar.xz ${{ matrix.extra-tar-args }}
 
+    - name: check for files to patch on macOS
+      if: ${{ matrix.os == 'macos-x86_64' || matrix.os == 'macos-aarch64' }}
+      shell: bash
+      run: |
+        find /usr/local/Cellar -name CMakeParseImplicitLinkInfo.cmake
+
     - name: patch cmake implicit link libraries on macOS
       if: ${{ matrix.os == 'macos-x86_64' || matrix.os == 'macos-aarch64' }}
       shell: bash
-      run: sed -i'.backup' -e 's/gcc_eh.\*|/gcc_eh.*|gcc_ext.*|/g' $(find /usr/local/Cellar -name CMakeParseImplicitLinkInfo.cmake)
+      run: |
+        for file in $(find /usr/local/Cellar -name CMakeParseImplicitLinkInfo.cmake); do
+          sed -i'.backup' -e 's/gcc_eh.\*|/gcc_eh.*|gcc_ext.*|/g' "$file"
+        done
 
     - name: cmake
       run: cmake -S ${{ matrix.release }}/llvm -B ${{ matrix.release }}/build ${{ env.COMMON_CMAKE_ARGS }} ${{ matrix.os-cmake-args }} ${{ matrix.extra-cmake-args }}
