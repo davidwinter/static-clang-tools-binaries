@@ -76,7 +76,7 @@ jobs:
         tar xf ${{ matrix.release }}.tar.xz ${{ matrix.extra-tar-args }}
 
     - name: patch cmake implicit link libraries on macOS
-      if: ${{ matrix.os == 'macos-x86_64' || matrix.os == 'macos-aarch64' }}
+      if: ${{ matrix.os == 'macos' }}
       shell: bash
       run: |
         for file in $(find /opt/homebrew/Cellar -name CMakeParseImplicitLinkInfo.cmake); do
@@ -84,6 +84,7 @@ jobs:
         done
 
     - name: cmake
+      shell: bash
       run: |
         cmake -S ${{ matrix.release }}/llvm \
           -B ${{ matrix.release }}/build \
@@ -92,6 +93,7 @@ jobs:
           ${{ matrix.extra-cmake-args }}
 
     - name: build
+      shell: bash
       run: |
         cmake --build ${{ matrix.release }}/build \
           ${{ matrix.build-args }} \
