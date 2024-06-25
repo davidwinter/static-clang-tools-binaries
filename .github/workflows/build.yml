@@ -40,13 +40,13 @@ jobs:
             build-args: '-j$(sysctl -n hw.ncpu)'
             shacmd: 'shasum -a512'
 
-          - os: linux-x86_64
+          - os: linux
             runner: ubuntu-22.04
             os-cmake-args: '-DLLVM_BUILD_STATIC=ON -DCMAKE_CXX_FLAGS="-s -flto" ${POSIX_CMAKE_ARGS} -DCMAKE_CXX_COMPILER=g++-10 -DCMAKE_C_COMPILER=gcc-10'
             build-args: '-j$(nproc)'
             shacmd: 'sha512sum'
 
-          - os: windows-x86_64
+          - os: windows
             runner: windows-2022
             os-cmake-args: '-Thost=x64 -DCMAKE_CXX_FLAGS="/MP /std:c++14" -DLLVM_USE_CRT_MINSIZEREL="MT"'
             build-args: '--config MinSizeRel'
