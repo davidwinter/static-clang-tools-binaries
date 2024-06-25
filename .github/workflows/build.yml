@@ -80,8 +80,8 @@ jobs:
       run: |
         tar xf ${{ matrix.release }}.tar.xz ${{ matrix.extra-tar-args }}
 
-    - name: patch cmake implicit link libraries on macosx
-      if: ${{ matrix.os == 'macosx' }}
+    - name: patch cmake implicit link libraries on macOS
+      if: ${{ matrix.os == 'macos-x86_64' || matrix.os == 'macos-aarch64' }}
       shell: bash
       run: sed -i'.backup' -e 's/gcc_eh.\*|/gcc_eh.*|gcc_ext.*|/g' $(find /usr/local/Cellar -name CMakeParseImplicitLinkInfo.cmake)
 
@@ -92,7 +92,7 @@ jobs:
       run: cmake --build ${{ matrix.release }}/build ${{ matrix.build-args }} --target clang-format clang-query clang-tidy clang-apply-replacements
 
     - name: print dependencies
-      if: ${{ matrix.os == 'macosx' }}
+      if: ${{ matrix.os == 'macos-x86_64' || matrix.os == 'macos-aarch64' }}
       run: otool -L ${{ matrix.release }}/build/bin/clang-format
 
     - name: rename output binary
