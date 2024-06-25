@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         clang-version: [ 18 ]
-        os: [ linux, macos, windows ]
+        os_arch: [ linux, macos, macos-aarch64, windows ]
 
         include:
           # - clang-version: 14
@@ -27,11 +27,13 @@ jobs:
             dotexe: ''
             bindir: '/build/bin'
 
-          - os: macos
+          - os_arch: macos
+            os: macos
             runner: macos-12
             arch: x86_64
 
-          - os: macos
+          - os_arch: macos-aarch64
+            os: macos
             runner: macos-14
             arch: aarch64
 
@@ -40,13 +42,15 @@ jobs:
             build-args: '-j$(sysctl -n hw.ncpu)'
             shacmd: 'shasum -a512'
 
-          - os: linux
+          - os_arch: linux
+            os: linix
             runner: ubuntu-22.04
             os-cmake-args: '-DLLVM_BUILD_STATIC=ON -DCMAKE_CXX_FLAGS="-s -flto" ${POSIX_CMAKE_ARGS} -DCMAKE_CXX_COMPILER=g++-10 -DCMAKE_C_COMPILER=gcc-10'
             build-args: '-j$(nproc)'
             shacmd: 'sha512sum'
 
-          - os: windows
+          - os_arch: windows
+            os: windows
             runner: windows-2022
             os-cmake-args: '-Thost=x64 -DCMAKE_CXX_FLAGS="/MP /std:c++14" -DLLVM_USE_CRT_MINSIZEREL="MT"'
             build-args: '--config MinSizeRel'
