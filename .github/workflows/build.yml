@@ -12,6 +12,17 @@ jobs:
         os: [ linux, macos, macos, windows ]
 
         include:
+          # - clang-version: 14
+          #   release: llvm-project-14.0.0.src
+          # - clang-version: 15
+          #   release: llvm-project-15.0.2.src
+          # - clang-version: 16
+          #   release: llvm-project-16.0.3.src
+          # - clang-version: 17
+          #   release: llvm-project-17.0.4.src
+          - clang-version: 18
+            release: llvm-project-18.1.3.src
+
           - arch: x86_64
             dotexe: ''
             bindir: '/build/bin'
@@ -43,17 +54,6 @@ jobs:
             dotexe: '.exe'
             shacmd: 'sha512sum.exe'
             extra-tar-args: '--exclude=${RELEASE}/clang/test/Driver/Inputs/* --exclude=${RELEASE}/libcxx/test/std/input.output/filesystems/Inputs/static_test_env/* --exclude=${RELEASE}/libclc/amdgcn-mesa3d'
-
-          # - clang-version: 14
-          #   release: llvm-project-14.0.0.src
-          # - clang-version: 15
-          #   release: llvm-project-15.0.2.src
-          # - clang-version: 16
-          #   release: llvm-project-16.0.3.src
-          # - clang-version: 17
-          #   release: llvm-project-17.0.4.src
-          - clang-version: 18
-            release: llvm-project-18.1.3.src
 
     runs-on: ${{ matrix.runner }}
 
