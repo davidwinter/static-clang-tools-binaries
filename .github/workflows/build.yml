@@ -89,13 +89,13 @@ jobs:
       if: ${{ matrix.os == 'macos-x86_64' || matrix.os == 'macos-aarch64' }}
       shell: bash
       run: |
-        find /usr/local/Cellar -name CMakeParseImplicitLinkInfo.cmake
+        find /opt/homebrew/Cellar -name CMakeParseImplicitLinkInfo.cmake
 
     - name: patch cmake implicit link libraries on macOS
       if: ${{ matrix.os == 'macos-x86_64' || matrix.os == 'macos-aarch64' }}
       shell: bash
       run: |
-        for file in $(find /usr/local/Cellar -name CMakeParseImplicitLinkInfo.cmake); do
+        for file in $(find /opt/homebrew/Cellar -name CMakeParseImplicitLinkInfo.cmake); do
           sed -i'.backup' -e 's/gcc_eh.\*|/gcc_eh.*|gcc_ext.*|/g' "$file"
         done
 
