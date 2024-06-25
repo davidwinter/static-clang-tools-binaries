@@ -80,6 +80,11 @@ jobs:
       run: |
         tar xf ${{ matrix.release }}.tar.xz ${{ matrix.extra-tar-args }}
 
+    - name: homebrew debug
+      if: ${{ matrix.os == 'macos-x86_64' || matrix.os == 'macos-aarch64' }}
+      shell: bash
+      run: homebrew config
+
     - name: check for files to patch on macOS
       if: ${{ matrix.os == 'macos-x86_64' || matrix.os == 'macos-aarch64' }}
       shell: bash
