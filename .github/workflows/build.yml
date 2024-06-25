@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         clang-version: [ 18 ]
-        os: [ linux, macos, macos, windows ]
+        os: [ linux, macos, windows ]
 
         include:
           # - clang-version: 14
@@ -28,12 +28,12 @@ jobs:
             bindir: '/build/bin'
 
           - os: macos
-            arch: x86_64
             runner: macos-12
+            arch: x86_64
 
           - os: macos
-            arch: aarch64
             runner: macos-14
+            arch: aarch64
 
           - os: macos
             os-cmake-args: '-DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++ -flto" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 ${POSIX_CMAKE_ARGS} -DCMAKE_CXX_COMPILER=g++-11 -DCMAKE_C_COMPILER=gcc-11'
@@ -100,7 +100,7 @@ jobs:
           --target clang-format clang-query clang-tidy clang-apply-replacements
 
     - name: print dependencies
-      if: ${{ matrix.os == 'macos-x86_64' || matrix.os == 'macos-aarch64' }}
+      if: ${{ matrix.os == 'macos' }}
       run: otool -L ${{ matrix.release }}/build/bin/clang-format
 
     - name: rename output binary
