@@ -33,7 +33,7 @@ jobs:
             shacmd: 'sha512sum'
 
           - os: macos-x86_64
-            runner: macos-13
+            runner: macos-12
             arch: x86_64
             os-cmake-args: '-DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++ -flto" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 ${POSIX_CMAKE_ARGS}'
             build-args: '-j$(sysctl -n hw.ncpu)'
