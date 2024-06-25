@@ -8,18 +8,18 @@ jobs:
   build:
     strategy:
       matrix:
-        clang-version: [ 14, 15, 16, 17, 18 ]
+        clang-version: [ 18 ]
         os: [ linux-x86_64, macos-x86_64, macos-aarch64, windows-x86_64 ]
 
         include:
-          - clang-version: 14
-            release: llvm-project-14.0.0.src
-          - clang-version: 15
-            release: llvm-project-15.0.2.src
-          - clang-version: 16
-            release: llvm-project-16.0.3.src
-          - clang-version: 17
-            release: llvm-project-17.0.4.src
+          # - clang-version: 14
+          #   release: llvm-project-14.0.0.src
+          # - clang-version: 15
+          #   release: llvm-project-15.0.2.src
+          # - clang-version: 16
+          #   release: llvm-project-16.0.3.src
+          # - clang-version: 17
+          #   release: llvm-project-17.0.4.src
           - clang-version: 18
             release: llvm-project-18.1.3.src
 
