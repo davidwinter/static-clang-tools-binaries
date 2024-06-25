@@ -43,7 +43,7 @@ jobs:
             shacmd: 'shasum -a512'
 
           - os_arch: linux
-            os: linix
+            os: linux
             runner: ubuntu-22.04
             os-cmake-args: '-DLLVM_BUILD_STATIC=ON -DCMAKE_CXX_FLAGS="-s -flto" ${POSIX_CMAKE_ARGS} -DCMAKE_CXX_COMPILER=g++-10 -DCMAKE_C_COMPILER=gcc-10'
             build-args: '-j$(nproc)'
