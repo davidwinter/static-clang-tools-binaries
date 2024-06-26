@@ -80,7 +80,8 @@ jobs:
         if: failure()
         run: echo "::set-output name=proceed::true"
 
-      - run: |
+      - if: always()
+        run: |
           echo "hello: ${{ steps.check_release.outputs.proceed }}"
 
       - name: get llvm-project
