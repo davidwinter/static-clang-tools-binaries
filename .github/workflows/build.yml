@@ -89,11 +89,6 @@ jobs:
             echo "::set-output name=proceed::true"
           fi
 
-      - if: always()
-        shell: bash
-        run: |
-          echo "hello: ${{ steps.check_release.outputs.proceed }}"
-
       - name: get llvm-project
         if: ${{ steps.check_release.outputs.proceed == 'true' }}
         shell: bash
