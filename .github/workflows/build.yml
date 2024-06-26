@@ -75,6 +75,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - run: gh release list
+        permissions:
+          contentsL read
         env:
           GH_TOKEN: ${{ github.token }}
 
