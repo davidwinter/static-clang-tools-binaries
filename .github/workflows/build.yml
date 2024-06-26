@@ -76,7 +76,7 @@ jobs:
 
       - run: gh release list
         permissions:
-          contentsL read
+          contents: read
         env:
           GH_TOKEN: ${{ github.token }}
 
