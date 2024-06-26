@@ -8,7 +8,7 @@ jobs:
   build:
     strategy:
       matrix:
-        clang-version: [ 18 ]
+        clang-version: [ 18.1.3 ]
         os_arch: [ linux, macos, macos-aarch64, windows ]
 
         include:
@@ -20,7 +20,7 @@ jobs:
           #   release: llvm-project-16.0.3.src
           # - clang-version: 17
           #   release: llvm-project-17.0.4.src
-          - clang-version: 18
+          - clang-version: 18.1.3
             release: llvm-project-18.1.3.src
 
           - arch: x86_64
@@ -68,19 +68,31 @@ jobs:
       suffix: '${{ matrix.clang-version }}_${{ matrix.os }}-${{ matrix.arch }}'
 
     steps:
+    - name: check if release already exists
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release view "v${{ matrix.clang-version }}"
+
+    - name: skip if release does exist
+      id: check_release
+      if: failure()
+      run: echo "::set-output name=proceed::true"
+
     - name: get llvm-project
+      if: steps.check_release.outputs.proceed == 'true'
       shell: bash
       run: |
         version=${RELEASE##llvm-project-}; version=${version%.src}
         curl -LO https://github.com/llvm/llvm-project/releases/download/llvmorg-${version}/${{ matrix.release }}.tar.xz
 
     - name: unpack llvm-project
+      if: steps.check_release.outputs.proceed == 'true'
       shell: bash
       run: |
         tar xf ${{ matrix.release }}.tar.xz ${{ matrix.extra-tar-args }}
 
     - name: patch cmake implicit link libraries on macOS
-      if: ${{ matrix.os == 'macos' }}
+      if: ${{ steps.check_release.outputs.proceed == 'true' && matrix.os == 'macos' }}
       shell: bash
       run: |
         for file in $(find /opt/homebrew/Cellar -name CMakeParseImplicitLinkInfo.cmake); do
@@ -88,6 +100,7 @@ jobs:
         done
 
     - name: cmake
+      if: steps.check_release.outputs.proceed == 'true'
       shell: bash
       run: |
         cmake -S ${{ matrix.release }}/llvm \
@@ -97,6 +110,7 @@ jobs:
           ${{ matrix.extra-cmake-args }}
 
     - name: build
+      if: steps.check_release.outputs.proceed == 'true'
       shell: bash
       run: |
         cmake --build ${{ matrix.release }}/build \
@@ -104,10 +118,11 @@ jobs:
           --target clang-format clang-query clang-tidy clang-apply-replacements
 
     - name: print dependencies
-      if: ${{ matrix.os == 'macos' }}
+      if: ${{ steps.check_release.outputs.proceed == 'true' && matrix.os == 'macos' }}
       run: otool -L ${{ matrix.release }}/build/bin/clang-format
 
     - name: rename output binary
+      if: steps.check_release.outputs.proceed == 'true'
       run: |
         cd ${{ matrix.release }}${{ matrix.bindir }}
         mv clang-format${{ matrix.dotexe }} clang-format-${{ env.suffix }}${{ matrix.dotexe }}
@@ -116,6 +131,7 @@ jobs:
         mv clang-apply-replacements${{ matrix.dotexe }} clang-apply-replacements-${{ env.suffix }}${{ matrix.dotexe }}
 
     - name: create and print sha512sum
+      if: steps.check_release.outputs.proceed == 'true'
       shell: bash
       run: |
         cd ${{ matrix.release }}${{ matrix.bindir }}
@@ -130,9 +146,10 @@ jobs:
         cat clang-apply-replacements-${{ env.suffix }}.sha512sum
 
     - name: upload artifacts
+      if: steps.check_release.outputs.proceed == 'true'
       uses: actions/upload-artifact@v2
       with:
-        name: clang-tools
+        name: "clang-tools-${{ matrix.clang-version }}"
         path: "${{ matrix.release }}${{ matrix.bindir }}/clang-*-${{ env.suffix }}*"
         retention-days: 1
 
@@ -141,19 +158,35 @@ jobs:
     permissions:
       contents: write
     needs: build
+    strategy:
+      matrix:
+        clang-version: [ 18.1.3 ]
+
     steps:
+      - name: check if release already exists
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release view "v${{ matrix.clang-version }}"
+
+      - name: skip if release does exist
+        id: check_release
+        if: failure()
+        run: echo "::set-output name=proceed::true"
+
       - name: download artifacts
+        if: steps.check_release.outputs.proceed == 'true'
         uses: actions/download-artifact@v2
         with:
-          name: clang-tools
+          name: "clang-tools-${{ matrix.clang-version }}"
 
       - name: list files
+        if: steps.check_release.outputs.proceed == 'true'
         run: ls -laR .
 
       - name: draft release
-        uses: xresloader/upload-to-github-release@v1
+        if: steps.check_release.outputs.proceed == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          file: "clang-*"
-          draft: true
+        shell: bash
+        run: |
+          gh release create v${{ matrix.clang-version }} clang-* --draft
