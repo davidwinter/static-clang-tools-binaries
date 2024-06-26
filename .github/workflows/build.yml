@@ -75,6 +75,7 @@ jobs:
         id: check_release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
         run: |
           if gh release view "v${{ matrix.clang-version }}" &>/dev/null; then
             echo "Release exists"
@@ -85,6 +86,7 @@ jobs:
           fi
 
       - if: always()
+        shell: bash
         run: |
           echo "hello: ${{ steps.check_release.outputs.proceed }}"
 
