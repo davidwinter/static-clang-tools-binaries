@@ -75,12 +75,14 @@ jobs:
       - uses: actions/checkout@v4
 
       - run: gh release list
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: check if release already exists
         continue-on-error: true
         id: check_release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           if gh release view "v${{ matrix.clang-version }}" &>/dev/null; then
@@ -180,12 +182,14 @@ jobs:
       - uses: actions/checkout@v4
 
       - run: gh release list
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: check if release already exists
         continue-on-error: true
         id: check_release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           if gh release view "v${{ matrix.clang-version }}" &>/dev/null; then
