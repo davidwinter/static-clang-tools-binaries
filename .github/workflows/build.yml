@@ -68,90 +68,92 @@ jobs:
       suffix: '${{ matrix.clang-version }}_${{ matrix.os }}-${{ matrix.arch }}'
 
     steps:
-    - name: check if release already exists
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: gh release view "v${{ matrix.clang-version }}"
+      - uses: actions/checkout@v4
 
-    - name: skip if release does exist
-      id: check_release
-      if: failure()
-      run: echo "::set-output name=proceed::true"
+      - name: check if release already exists
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release view "v${{ matrix.clang-version }}"
 
-    - name: get llvm-project
-      if: steps.check_release.outputs.proceed == 'true'
-      shell: bash
-      run: |
-        version=${RELEASE##llvm-project-}; version=${version%.src}
-        curl -LO https://github.com/llvm/llvm-project/releases/download/llvmorg-${version}/${{ matrix.release }}.tar.xz
+      - name: skip if release does exist
+        id: check_release
+        if: failure()
+        run: echo "::set-output name=proceed::true"
 
-    - name: unpack llvm-project
-      if: steps.check_release.outputs.proceed == 'true'
-      shell: bash
-      run: |
-        tar xf ${{ matrix.release }}.tar.xz ${{ matrix.extra-tar-args }}
+      - name: get llvm-project
+        if: steps.check_release.outputs.proceed == 'true'
+        shell: bash
+        run: |
+          version=${RELEASE##llvm-project-}; version=${version%.src}
+          curl -LO https://github.com/llvm/llvm-project/releases/download/llvmorg-${version}/${{ matrix.release }}.tar.xz
 
-    - name: patch cmake implicit link libraries on macOS
-      if: ${{ steps.check_release.outputs.proceed == 'true' && matrix.os == 'macos' }}
-      shell: bash
-      run: |
-        for file in $(find /opt/homebrew/Cellar -name CMakeParseImplicitLinkInfo.cmake); do
-          sed -i'.backup' -e 's/gcc_eh.\*|/gcc_eh.*|gcc_ext.*|/g' "$file"
-        done
+      - name: unpack llvm-project
+        if: steps.check_release.outputs.proceed == 'true'
+        shell: bash
+        run: |
+          tar xf ${{ matrix.release }}.tar.xz ${{ matrix.extra-tar-args }}
 
-    - name: cmake
-      if: steps.check_release.outputs.proceed == 'true'
-      shell: bash
-      run: |
-        cmake -S ${{ matrix.release }}/llvm \
-          -B ${{ matrix.release }}/build \
-          ${{ env.COMMON_CMAKE_ARGS }} \
-          ${{ matrix.os-cmake-args }} \
-          ${{ matrix.extra-cmake-args }}
+      - name: patch cmake implicit link libraries on macOS
+        if: ${{ steps.check_release.outputs.proceed == 'true' && matrix.os == 'macos' }}
+        shell: bash
+        run: |
+          for file in $(find /opt/homebrew/Cellar -name CMakeParseImplicitLinkInfo.cmake); do
+            sed -i'.backup' -e 's/gcc_eh.\*|/gcc_eh.*|gcc_ext.*|/g' "$file"
+          done
 
-    - name: build
-      if: steps.check_release.outputs.proceed == 'true'
-      shell: bash
-      run: |
-        cmake --build ${{ matrix.release }}/build \
-          ${{ matrix.build-args }} \
-          --target clang-format clang-query clang-tidy clang-apply-replacements
+      - name: cmake
+        if: steps.check_release.outputs.proceed == 'true'
+        shell: bash
+        run: |
+          cmake -S ${{ matrix.release }}/llvm \
+            -B ${{ matrix.release }}/build \
+            ${{ env.COMMON_CMAKE_ARGS }} \
+            ${{ matrix.os-cmake-args }} \
+            ${{ matrix.extra-cmake-args }}
 
-    - name: print dependencies
-      if: ${{ steps.check_release.outputs.proceed == 'true' && matrix.os == 'macos' }}
-      run: otool -L ${{ matrix.release }}/build/bin/clang-format
+      - name: build
+        if: steps.check_release.outputs.proceed == 'true'
+        shell: bash
+        run: |
+          cmake --build ${{ matrix.release }}/build \
+            ${{ matrix.build-args }} \
+            --target clang-format clang-query clang-tidy clang-apply-replacements
 
-    - name: rename output binary
-      if: steps.check_release.outputs.proceed == 'true'
-      run: |
-        cd ${{ matrix.release }}${{ matrix.bindir }}
-        mv clang-format${{ matrix.dotexe }} clang-format-${{ env.suffix }}${{ matrix.dotexe }}
-        mv clang-query${{ matrix.dotexe }} clang-query-${{ env.suffix }}${{ matrix.dotexe }}
-        mv clang-tidy${{ matrix.dotexe }} clang-tidy-${{ env.suffix }}${{ matrix.dotexe }}
-        mv clang-apply-replacements${{ matrix.dotexe }} clang-apply-replacements-${{ env.suffix }}${{ matrix.dotexe }}
+      - name: print dependencies
+        if: ${{ steps.check_release.outputs.proceed == 'true' && matrix.os == 'macos' }}
+        run: otool -L ${{ matrix.release }}/build/bin/clang-format
 
-    - name: create and print sha512sum
-      if: steps.check_release.outputs.proceed == 'true'
-      shell: bash
-      run: |
-        cd ${{ matrix.release }}${{ matrix.bindir }}
-        ${{ matrix.shacmd }} clang-format-${{ env.suffix }} > clang-format-${{ env.suffix }}.sha512sum
-        ${{ matrix.shacmd }} clang-query-${{ env.suffix }} > clang-query-${{ env.suffix }}.sha512sum
-        ${{ matrix.shacmd }} clang-tidy-${{ env.suffix }} > clang-tidy-${{ env.suffix }}.sha512sum
-        ${{ matrix.shacmd }} clang-apply-replacements-${{ env.suffix }} > clang-apply-replacements-${{ env.suffix }}.sha512sum
-        echo "Checksums are: "
-        cat clang-format-${{ env.suffix }}.sha512sum
-        cat clang-query-${{ env.suffix }}.sha512sum
-        cat clang-tidy-${{ env.suffix }}.sha512sum
-        cat clang-apply-replacements-${{ env.suffix }}.sha512sum
+      - name: rename output binary
+        if: steps.check_release.outputs.proceed == 'true'
+        run: |
+          cd ${{ matrix.release }}${{ matrix.bindir }}
+          mv clang-format${{ matrix.dotexe }} clang-format-${{ env.suffix }}${{ matrix.dotexe }}
+          mv clang-query${{ matrix.dotexe }} clang-query-${{ env.suffix }}${{ matrix.dotexe }}
+          mv clang-tidy${{ matrix.dotexe }} clang-tidy-${{ env.suffix }}${{ matrix.dotexe }}
+          mv clang-apply-replacements${{ matrix.dotexe }} clang-apply-replacements-${{ env.suffix }}${{ matrix.dotexe }}
 
-    - name: upload artifacts
-      if: steps.check_release.outputs.proceed == 'true'
-      uses: actions/upload-artifact@v2
-      with:
-        name: "clang-tools-${{ matrix.clang-version }}"
-        path: "${{ matrix.release }}${{ matrix.bindir }}/clang-*-${{ env.suffix }}*"
-        retention-days: 1
+      - name: create and print sha512sum
+        if: steps.check_release.outputs.proceed == 'true'
+        shell: bash
+        run: |
+          cd ${{ matrix.release }}${{ matrix.bindir }}
+          ${{ matrix.shacmd }} clang-format-${{ env.suffix }} > clang-format-${{ env.suffix }}.sha512sum
+          ${{ matrix.shacmd }} clang-query-${{ env.suffix }} > clang-query-${{ env.suffix }}.sha512sum
+          ${{ matrix.shacmd }} clang-tidy-${{ env.suffix }} > clang-tidy-${{ env.suffix }}.sha512sum
+          ${{ matrix.shacmd }} clang-apply-replacements-${{ env.suffix }} > clang-apply-replacements-${{ env.suffix }}.sha512sum
+          echo "Checksums are: "
+          cat clang-format-${{ env.suffix }}.sha512sum
+          cat clang-query-${{ env.suffix }}.sha512sum
+          cat clang-tidy-${{ env.suffix }}.sha512sum
+          cat clang-apply-replacements-${{ env.suffix }}.sha512sum
+
+      - name: upload artifacts
+        if: steps.check_release.outputs.proceed == 'true'
+        uses: actions/upload-artifact@v2
+        with:
+          name: "clang-tools-${{ matrix.clang-version }}"
+          path: "${{ matrix.release }}${{ matrix.bindir }}/clang-*-${{ env.suffix }}*"
+          retention-days: 1
 
   draft-release:
     runs-on: ubuntu-20.04
@@ -163,6 +165,7 @@ jobs:
         clang-version: [ 18.1.3 ]
 
     steps:
+      - uses: actions/checkout@v4
       - name: check if release already exists
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
