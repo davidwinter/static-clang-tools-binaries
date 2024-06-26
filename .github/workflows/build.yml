@@ -176,15 +176,21 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - name: check if release already exists
+        continue-on-error: true
+        id: check_release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release view "v${{ matrix.clang-version }}"
-
-      - name: skip if release does exist
-        id: check_release
-        if: failure()
-        run: echo "::set-output name=proceed::true"
+        shell: bash
+        run: |
+          if gh release view "v${{ matrix.clang-version }}" &>/dev/null; then
+            echo "Release exists"
+            echo "::set-output name=proceed::false"
+          else
+            echo "Release does not exist"
+            echo "::set-output name=proceed::true"
+          fi
 
       - name: download artifacts
         if: ${{ steps.check_release.outputs.proceed == 'true' }}
