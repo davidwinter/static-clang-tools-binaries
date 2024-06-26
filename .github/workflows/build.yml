@@ -2,7 +2,11 @@ name: clang-tools-static-amd64
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
@@ -134,7 +138,7 @@ jobs:
         run: otool -L ${{ matrix.release }}/build/bin/clang-format
 
       - name: rename output binary
-        if: ${{ steps.check_release.outputs.proceed == 'true' }}
+        if: ${{ steps.check_release.outputs.proceed == 'true' && github.ref == 'refs/heads/main' }}
         run: |
           cd ${{ matrix.release }}${{ matrix.bindir }}
           mv clang-format${{ matrix.dotexe }} clang-format-${{ env.suffix }}${{ matrix.dotexe }}
@@ -143,7 +147,7 @@ jobs:
           mv clang-apply-replacements${{ matrix.dotexe }} clang-apply-replacements-${{ env.suffix }}${{ matrix.dotexe }}
 
       - name: create and print sha512sum
-        if: ${{ steps.check_release.outputs.proceed == 'true' }}
+        if: ${{ steps.check_release.outputs.proceed == 'true' && github.ref == 'refs/heads/main' }}
         shell: bash
         run: |
           cd ${{ matrix.release }}${{ matrix.bindir }}
@@ -158,7 +162,7 @@ jobs:
           cat clang-apply-replacements-${{ env.suffix }}.sha512sum
 
       - name: upload artifacts
-        if: ${{ steps.check_release.outputs.proceed == 'true' }}
+        if: ${{ steps.check_release.outputs.proceed == 'true' && github.ref == 'refs/heads/main' }}
         uses: actions/upload-artifact@v2
         with:
           name: "clang-tools-${{ matrix.clang-version }}"
@@ -166,6 +170,7 @@ jobs:
           retention-days: 1
 
   draft-release:
+    if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-20.04
     permissions:
       contents: write
