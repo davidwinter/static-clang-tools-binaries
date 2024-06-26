@@ -74,6 +74,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - run: gh release list
+
       - name: check if release already exists
         continue-on-error: true
         id: check_release
@@ -176,6 +178,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - run: gh release list
 
       - name: check if release already exists
         continue-on-error: true
