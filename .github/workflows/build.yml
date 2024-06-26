@@ -213,4 +213,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          gh release create v${{ matrix.clang-version }} clang-* --draft
+          gh release create v${{ matrix.clang-version }} clang-* --draft --title v${{ matrix.clang-version }}
