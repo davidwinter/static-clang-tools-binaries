@@ -79,13 +79,13 @@ jobs:
 
       - run: gh release list
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: check if release already exists
         continue-on-error: true
         id: check_release
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
           if gh release view "v${{ matrix.clang-version }}" &>/dev/null; then
@@ -186,13 +186,13 @@ jobs:
 
       - run: gh release list
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: check if release already exists
         continue-on-error: true
         id: check_release
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
           if gh release view "v${{ matrix.clang-version }}" &>/dev/null; then
