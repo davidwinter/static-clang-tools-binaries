@@ -1,9 +1,10 @@
-name: clang-tools-static-amd64
+name: static-clang-tools-binaries
 
 on:
   push:
     branches:
       - main
+
   pull_request:
     branches:
       - main
