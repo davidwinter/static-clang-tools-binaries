@@ -4,20 +4,20 @@ type = "cli"
 [platform.linux]
 archs = [ "x86_64" ]
 download-file = "clang-format-{version}_{os}-{arch}"
-checksum-file = "clang-format-{version}_{os}-{arch}.sha512sum"
+# checksum-file = "clang-format-{version}_{os}-{arch}.sha512sum"
 
 [platform.macos]
 archs = [ "x86_64", "aarch64" ]
 download-file = "clang-format-{version}_{os}-{arch}"
-checksum-file = "clang-format-{version}_{os}-{arch}.sha512sum"
+# checksum-file = "clang-format-{version}_{os}-{arch}.sha512sum"
 
 [platform.windows]
 archs = [ "x86_64" ]
 download-file = "clang-format-{version}_{os}-{arch}.exe"
-checksum-file = "clang-format-{version}_{os}-{arch}.sha512sum"
+# checksum-file = "clang-format-{version}_{os}-{arch}.sha512sum"
 
 [install]
-checksum-url = "https://github.com/davidwinter/static-clang-tools-binaries/releases/download/v{version}/{checksum_file}"
+# checksum-url = "https://github.com/davidwinter/static-clang-tools-binaries/releases/download/v{version}/{checksum_file}"
 download-url = "https://github.com/davidwinter/static-clang-tools-binaries/releases/download/v{version}/{download_file}"
 
 [resolve]
