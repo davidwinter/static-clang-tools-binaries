@@ -1,8 +1,19 @@
 name = "clang-format"
 type = "cli"
 
-[platform]
+[platform.linux]
+archs = [ "x86_64" ]
 download-file = "clang-format-{version}_{os}-{arch}"
+checksum-file = "clang-format-{version}_{os}-{arch}.sha512sum"
+
+[platform.macos]
+archs = [ "x86_64", "aarch64" ]
+download-file = "clang-format-{version}_{os}-{arch}"
+checksum-file = "clang-format-{version}_{os}-{arch}.sha512sum"
+
+[platform.windows]
+archs = [ "x86_64" ]
+download-file = "clang-format-{version}_{os}-{arch}.exe"
 checksum-file = "clang-format-{version}_{os}-{arch}.sha512sum"
 
 [install]
