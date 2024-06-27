@@ -1,8 +1,5 @@
 name: clang-tools-static-amd64
 
-env:
-  CLANG_VERSIONS: '18.1.3'
-
 on:
   push:
     branches:
@@ -18,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        clang-version: [ ${{ env.CLANG_VERSIONS }} ]
+        clang-version: [ 18.1.3 ]
         os_arch: [ linux, macos, macos-aarch64, windows ]
 
         include:
@@ -181,7 +178,7 @@ jobs:
 
     strategy:
       matrix:
-        clang-version: [ ${{ env.CLANG_VERSIONS }} ]
+        clang-version: [ 18.1.3 ]
 
     steps:
       - uses: actions/checkout@v4
